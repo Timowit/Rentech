@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -138,7 +139,8 @@ private fun HalamanPerkenalan(h: Halaman) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(1f, fill = false)
+                .height(470.dp),
         )
         Column(
             Modifier.padding(start = 21.dp, end = 21.dp, top = 34.dp, bottom = 21.dp),
@@ -159,7 +161,8 @@ private fun HalamanPilihPeran(peran: Peran, onPilih: (Peran) -> Unit) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(1f, fill = false)
+                .height(290.dp),
         )
         Column(
             Modifier.padding(21.dp),

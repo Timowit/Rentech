@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,9 +37,8 @@ fun SplashScreen(onSelesai: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
-            painterResource(R.drawable.logo_rentech_putih),
+            painterResource(R.drawable.logo_splash),
             contentDescription = "Rentech",
-            modifier = Modifier.width(300.dp),
         )
         Text(
             "Sewa perangkat, tanpa perlu beli",
