@@ -20,7 +20,13 @@ class Multipart(val teks: Map<String, String>, val file: Map<String, ByteArray>)
     fun teksWajib(nama: String) = teks[nama]?.takeIf { it.isNotBlank() } ?: throw Gagal(HttpStatusCode.BadRequest, "Kolom $nama belum diisi")
 }
 
-/** Baca multipart. Setiap file berhenti dibaca setelah 5 MB + 1 byte, jadi file raksasa tidak memenuhi memori. */
+/** Batas file per unggahan: cukup untuk 5 foto barang, atau KTP + swafoto. */
+const val BATAS_JUMLAH_FILE = 6
+
+/**
+ * Baca multipart. Setiap file berhenti dibaca setelah 5 MB + 1 byte, dan file ke-7 menghentikan permintaan,
+ * jadi satu unggahan tidak bisa memenuhi memori server.
+ */
 suspend fun ApplicationCall.terimaMultipart(): Multipart {
     val teks = mutableMapOf<String, String>()
     val file = mutableMapOf<String, ByteArray>()
@@ -29,6 +35,10 @@ suspend fun ApplicationCall.terimaMultipart(): Multipart {
         when (part) {
             is PartData.FormItem -> if (nama != null) teks[nama] = part.value
             is PartData.FileItem -> if (nama != null) {
+                if (file.size >= BATAS_JUMLAH_FILE) {
+                    part.dispose()
+                    throw Gagal(HttpStatusCode.PayloadTooLarge, "Maksimal $BATAS_JUMLAH_FILE foto sekali unggah")
+                }
                 val bytes = part.provider().readRemaining(BATAS_FOTO + 1L).readByteArray()
                 file[nama] = bytes
             }

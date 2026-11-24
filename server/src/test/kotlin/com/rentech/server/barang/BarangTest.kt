@@ -71,6 +71,17 @@ class BarangTest {
     }
 
     @Test
+    fun `terlalu banyak file dalam satu unggahan ditolak 413`() = ujiAplikasi { klien ->
+        val token = klien.akunTerverifikasi("p@uji.test")
+        val r = klien.submitFormWithBinaryData("/barang", formData {
+            append("nama", "Drone"); append("kategori", "Drone"); append("hargaPerHari", "1")
+            repeat(7) { i -> append("foto$i", JPEG_KECIL, Headers.build { append(HttpHeaders.ContentDisposition, "filename=$i.jpg") }) }
+        }) { bearerAuth(token) }
+        assertEquals(HttpStatusCode.PayloadTooLarge, r.status)
+        assertEquals(0, klien.get("/barang").body<List<BarangDto>>().size)
+    }
+
+    @Test
     fun `profil pemilik berisi barangnya`() = ujiAplikasi { klien ->
         klien.akunBaru("p@uji.test")
         buatBarang("p@uji.test", "Kamera", 350_000, 0)
