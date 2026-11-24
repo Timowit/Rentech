@@ -37,6 +37,10 @@ import com.rentech.app.ui.sewa.PilihTanggalScreen
 import com.rentech.app.ui.sewa.RingkasanSewaScreen
 import com.rentech.app.ui.sewa.SerahTerimaScreen
 import com.rentech.app.ui.sewa.TransferScreen
+import com.rentech.app.ui.sewasaya.KonfirmasiTerimaScreen
+import com.rentech.app.ui.sewasaya.SewaSayaScreen
+import com.rentech.app.ui.sewasaya.UlasanScreen
+import com.rentech.app.ui.sewasaya.contohRiwayat
 import com.rentech.app.ui.profil.ProfilScreen
 import com.rentech.app.ui.onboarding.OnboardingScreen
 import com.rentech.app.ui.onboarding.Peran
@@ -69,6 +73,11 @@ object Rute {
     const val SEWA_METODE = "sewa_metode"
     const val SEWA_TRANSFER = "sewa_transfer"
     const val SEWA_MENUNGGU = "sewa_menunggu"
+    const val SEWA_SAYA = "sewa_saya"
+    const val KONFIRMASI_TERIMA = "konfirmasi_terima"
+    const val ULASAN = "ulasan/{indeks}"
+
+    fun ulasan(indeks: Int) = "ulasan/$indeks"
 
     fun detail(id: Int) = "barang/$id"
     fun pencarian(q: String = "") = "pencarian?q=${Uri.encode(q)}"
@@ -232,8 +241,34 @@ fun RentechNavHost() {
         composable(Rute.SEWA_MENUNGGU) {
             MenungguKonfirmasiScreen(
                 draft,
-                onLihatPesanan = { },
+                onLihatPesanan = { nav.bukaTabPenyewa(2) },
                 onBeranda = { nav.bukaTabPenyewa(0) },
+            )
+        }
+        composable(Rute.SEWA_SAYA) {
+            SewaSayaScreen(
+                draft,
+                onKonfirmasi = { nav.navigate(Rute.KONFIRMASI_TERIMA) },
+                onChat = { },
+                onUlas = { nav.navigate(Rute.ulasan(contohRiwayat.indexOf(it))) },
+                onPilihTab = { nav.bukaTabPenyewa(it) },
+            )
+        }
+        composable(Rute.KONFIRMASI_TERIMA) {
+            KonfirmasiTerimaScreen(
+                draft,
+                onKembali = { nav.popBackStack() },
+                onKonfirmasi = {
+                    draft.diterima = true
+                    nav.popBackStack()
+                },
+            )
+        }
+        composable(Rute.ULASAN, arguments = listOf(navArgument("indeks") { type = NavType.IntType })) { entri ->
+            UlasanScreen(
+                contohRiwayat[entri.arguments?.getInt("indeks") ?: 0],
+                onKembali = { nav.popBackStack() },
+                onKirim = { nav.popBackStack() },
             )
         }
         composable(Rute.PERLINDUNGAN) {
@@ -305,6 +340,7 @@ private fun NavHostController.bukaTabPenyewa(indeks: Int) {
     val tujuan = when (indeks) {
         0 -> Rute.BERANDA
         1 -> Rute.pencarian()
+        2 -> Rute.SEWA_SAYA
         3 -> Rute.PROFIL
         else -> return
     }
