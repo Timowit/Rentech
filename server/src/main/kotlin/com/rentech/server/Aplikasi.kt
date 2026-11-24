@@ -18,6 +18,8 @@ import kotlinx.serialization.json.Json
 import com.rentech.server.akun.pasangAuth
 import com.rentech.server.akun.rutAkun
 import com.rentech.server.db.buatDataSource
+import com.rentech.server.foto.Penyimpanan
+import com.rentech.server.foto.rutFoto
 import com.rentech.server.db.migrasi
 import org.jetbrains.exposed.v1.jdbc.Database
 import javax.sql.DataSource
@@ -49,8 +51,10 @@ fun Application.modul(k: Konfigurasi, db: DataSource) {
     Database.connect(db)
     modulDasar()
     pasangAuth(k)
+    val penyimpanan = Penyimpanan(k.fotoDir)
     routing {
         rutAkun(k)
+        rutFoto(penyimpanan)
     }
 }
 
