@@ -68,6 +68,7 @@ private val barangSaya = listOf(
 fun BerandaPemilikScreen(
     onTambahBarang: () -> Unit,
     onLihatPermintaan: () -> Unit,
+    onNotifikasi: () -> Unit,
     onPilihTab: (Int) -> Unit,
 ) {
     val permintaan = remember {
@@ -91,7 +92,10 @@ fun BerandaPemilikScreen(
                 Image(painterResource(R.drawable.logo_rentech), contentDescription = "Rentech", Modifier.width(97.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Lencana("Mode pemilik", OnPrimaryContainer, PrimaryContainer)
-                    Box(Modifier.size(40.dp).kartu(radius = 20.dp), contentAlignment = Alignment.Center) {
+                    Box(
+                        Modifier.size(40.dp).kartu(radius = 20.dp).clickable(onClick = onNotifikasi),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         Ikon(R.drawable.ikon_notifications, TextPrimary, ukuran = 20.dp)
                     }
                 }
@@ -208,6 +212,6 @@ private fun KartuBarangSaya(b: BarangSaya) {
 @Preview(heightDp = 1035, widthDp = 412)
 @Composable
 private fun BerandaPemilikPreview() {
-    RentechTheme { BerandaPemilikScreen({}, {}, {}) }
+    RentechTheme { BerandaPemilikScreen({}, {}, {}, {}) }
 }
 
