@@ -15,6 +15,9 @@ import io.ktor.server.routing.routing
 import io.ktor.http.ContentType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import com.rentech.server.db.buatDataSource
+import com.rentech.server.db.migrasi
+import org.jetbrains.exposed.v1.jdbc.Database
 import javax.sql.DataSource
 
 /** Kegagalan yang boleh dilihat klien: status HTTP beserta pesan berbahasa Indonesia. */
@@ -38,13 +41,16 @@ fun Application.modulDasar() {
 
 /** Seluruh server: modul dasar ditambah semua rute yang memakai database. */
 fun Application.modul(k: Konfigurasi, db: DataSource) {
+    Database.connect(db)
     modulDasar()
 }
 
 fun main() {
     val k = Konfigurasi.dariEnv()
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
+    val db = buatDataSource(k)
+    migrasi(db)
     embeddedServer(Netty, port = port, host = "0.0.0.0") {
-        modul(k, TODO("Task 2: buatDataSource"))
+        modul(k, db)
     }.start(wait = true)
 }
