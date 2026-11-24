@@ -36,7 +36,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rentech.app.R
+import com.rentech.app.ui.komponen.BilahAksi
 import com.rentech.app.ui.komponen.BilahAtas
+import com.rentech.app.ui.komponen.Chip
 import com.rentech.app.ui.komponen.Ikon
 import com.rentech.app.ui.komponen.IndikatorLangkah
 import com.rentech.app.ui.komponen.KolomIsian
@@ -139,7 +141,12 @@ fun TambahBarangScreen(onKembali: () -> Unit, onLanjut: () -> Unit) {
                 Text("Kondisi", style = Teks.Label, color = TextPrimary)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     pilihanKondisi.forEachIndexed { i, label ->
-                        Chip(label, terpilih = i == kondisi, onClick = { kondisi = i })
+                        Chip(
+                            label,
+                            terpilih = i == kondisi,
+                            onClick = { kondisi = i },
+                            padding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                        )
                     }
                 }
             }
@@ -197,22 +204,6 @@ private fun SlotFoto(utama: Boolean) {
         Ikon(R.drawable.ikon_add_a_photo, if (utama) Primary else TextTertiary)
         if (utama) Text("Tambah foto", style = Teks.Label, color = Primary)
     }
-}
-
-@Composable
-private fun Chip(label: String, terpilih: Boolean, onClick: () -> Unit) {
-    val bentuk = RoundedCornerShape(21.dp)
-    Text(
-        label,
-        style = Teks.Label,
-        color = if (terpilih) OnPrimaryContainer else TextSecondary,
-        modifier = Modifier
-            .clip(bentuk)
-            .background(if (terpilih) PrimaryContainer else Surface)
-            .border(if (terpilih) 1.5.dp else 1.dp, if (terpilih) Primary else Outline, bentuk)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-    )
 }
 
 @Composable

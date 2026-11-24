@@ -142,6 +142,7 @@ fun Segmen(
     onPilih: (Int) -> Unit,
     modifier: Modifier = Modifier,
     jumlah: List<Int?> = pilihan.map { null },
+    ikon: List<Int?> = pilihan.map { null },
 ) {
     Row(
         modifier
@@ -163,6 +164,7 @@ fun Segmen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                ikon[i]?.let { Ikon(it, if (aktif) Primary else TextSecondary, ukuran = 18.dp) }
                 Text(label, style = Teks.IsiTebal, color = if (aktif) TextPrimary else TextSecondary)
                 jumlah[i]?.let { n ->
                     Box(

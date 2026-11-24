@@ -2,12 +2,10 @@ package com.rentech.app.ui.pemilik
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -17,17 +15,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rentech.app.R
 import com.rentech.app.ui.komponen.Ikon
-import com.rentech.app.ui.theme.Outline
 import com.rentech.app.ui.theme.Primary
-import com.rentech.app.ui.theme.Surface
 import com.rentech.app.ui.theme.Teks
 import com.rentech.app.ui.theme.TextPrimary
 import com.rentech.app.ui.theme.TextSecondary
@@ -108,17 +102,4 @@ fun RingkasBarang(@DrawableRes foto: Int, nama: String, keterangan: String) {
             Text(keterangan, style = Teks.Keterangan, color = TextSecondary)
         }
     }
-}
-
-/** Bilah putih di bawah layar formulir, berisi satu tombol aksi utama. */
-@Composable
-fun BilahAksi(modifier: Modifier = Modifier, isi: @Composable () -> Unit) {
-    Column(
-        modifier
-            .fillMaxWidth()
-            .background(Surface)
-            .drawBehind { drawLine(Outline, Offset(0f, 0f), Offset(size.width, 0f), 1.dp.toPx()) }
-            .navigationBarsPadding()
-            .padding(start = 21.dp, end = 21.dp, top = 13.dp, bottom = 21.dp),
-    ) { isi() }
 }
