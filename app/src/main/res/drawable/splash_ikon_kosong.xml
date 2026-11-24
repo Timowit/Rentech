@@ -1,0 +1,4 @@
+<!-- Ikon kosong untuk splash bawaan Android 12+, supaya yang tampil hanya layar biru sebelum animasi logo. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@android:color/transparent" />
+</shape>

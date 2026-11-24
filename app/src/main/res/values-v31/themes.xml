@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Rentech" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Biru Rentech saat aplikasi dibuka, menyatu dengan layar splash -->
+        <item name="android:windowBackground">@color/rentech_biru</item>
+        <!--
+            Android 12+ otomatis menampilkan ikon aplikasi saat dibuka.
+            Ikonnya dikosongkan supaya hanya biru polos yang tampil, lalu animasi logo di SplashScreen dimulai.
+        -->
+        <item name="android:windowSplashScreenBackground">@color/rentech_biru</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_ikon_kosong</item>
+    </style>
+</resources>
