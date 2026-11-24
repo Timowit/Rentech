@@ -15,6 +15,8 @@ import io.ktor.server.routing.routing
 import io.ktor.http.ContentType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import com.rentech.server.akun.pasangAuth
+import com.rentech.server.akun.rutAkun
 import com.rentech.server.db.buatDataSource
 import com.rentech.server.db.migrasi
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -33,6 +35,9 @@ fun Application.modulDasar() {
     install(ContentNegotiation) { json(jsonRentech) }
     install(StatusPages) {
         exception<Gagal> { call, e -> call.respond(e.status, PesanGagal(e.message ?: "")) }
+        exception<io.ktor.server.plugins.BadRequestException> { call, _ ->
+            call.respond(HttpStatusCode.BadRequest, PesanGagal("Permintaan tidak lengkap"))
+        }
     }
     routing {
         get("/sehat") { call.respondText("""{"status":"ok"}""", ContentType.Application.Json) }
@@ -43,6 +48,10 @@ fun Application.modulDasar() {
 fun Application.modul(k: Konfigurasi, db: DataSource) {
     Database.connect(db)
     modulDasar()
+    pasangAuth(k)
+    routing {
+        rutAkun(k)
+    }
 }
 
 fun main() {
