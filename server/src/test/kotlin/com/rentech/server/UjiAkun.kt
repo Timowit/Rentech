@@ -42,10 +42,22 @@ fun idPengguna(email: String): Int = UjiDb.ds.connection.use { c ->
 }
 
 
-suspend fun HttpClient.postJson(url: String, token: String?, body: Any) = post(url) {
+suspend fun HttpClient.postJson(url: String, token: String?, body: Map<String, Any?>) = post(url) {
     token?.let { bearerAuth(it) }
     contentType(ContentType.Application.Json)
-    setBody(body)
+    setBody(keJson(body))
+}
+
+fun keJson(m: Map<String, Any?>): kotlinx.serialization.json.JsonObject = kotlinx.serialization.json.buildJsonObject {
+    m.forEach { (k, v) ->
+        when (v) {
+            null -> put(k, kotlinx.serialization.json.JsonNull)
+            is Number -> put(k, kotlinx.serialization.json.JsonPrimitive(v))
+            is Boolean -> put(k, kotlinx.serialization.json.JsonPrimitive(v))
+            is List<*> -> put(k, kotlinx.serialization.json.JsonArray(v.map { kotlinx.serialization.json.JsonPrimitive(it.toString()) }))
+            else -> put(k, kotlinx.serialization.json.JsonPrimitive(v.toString()))
+        }
+    }
 }
 
 /** Kirim KTP + swafoto lewat API. */
@@ -63,3 +75,22 @@ suspend fun HttpClient.kirimVerifikasi(token: String?, ktp: ByteArray, swafoto: 
 fun nilaiDb(sql: String): String? = UjiDb.ds.connection.use { c ->
     c.createStatement().executeQuery(sql).let { if (it.next()) it.getString(1) else null }
 }
+
+/** Kategori + barang langsung di DB. Mengembalikan id barang. */
+fun buatBarang(pemilikEmail: String, nama: String, harga: Long, deposit: Long, kategori: String = "Kamera"): Int =
+    UjiDb.ds.connection.use { c ->
+        c.prepareStatement("insert into kategori (nama, urutan) values (?, 0) on conflict (nama) do nothing").apply { setString(1, kategori); executeUpdate() }
+        c.prepareStatement(
+            "insert into barang (pemilik_id, kategori_id, nama, harga_per_hari, deposit, jarak_demo) " +
+                "values (?, (select id from kategori where nama = ?), ?, ?, ?, '1,2 km') returning id"
+        ).apply {
+            setInt(1, idPengguna(pemilikEmail)); setString(2, kategori); setString(3, nama); setLong(4, harga); setLong(5, deposit)
+        }.executeQuery().let { it.next(); it.getInt(1) }
+    }
+
+/** Akun yang sudah terverifikasi, siap bertransaksi. */
+suspend fun HttpClient.akunTerverifikasi(email: String): String =
+    akunBaru(email).also { aturPengguna(email, "status_verifikasi", "terverifikasi") }
+
+fun pesananBaru(barangId: Int, mulai: String, selesai: String, metode: String = "tunai", diantar: Boolean = false) =
+    mapOf("barangId" to barangId, "mulai" to mulai, "selesai" to selesai, "diantar" to diantar, "slot" to 0, "metode" to metode)

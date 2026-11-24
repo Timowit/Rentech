@@ -90,12 +90,7 @@ class VerifikasiLayanan(private val penyimpanan: Penyimpanan, private val notifi
         putuskan(verifikasiId, adminId, "ditolak", bersih)
     }
 
-    fun pastikanAdmin(penggunaId: Int) {
-        val admin = transaction {
-            Pengguna.select(Pengguna.admin).where { Pengguna.id eq penggunaId }.firstOrNull()?.get(Pengguna.admin)
-        }
-        if (admin != true) throw Gagal(HttpStatusCode.Forbidden, "Khusus admin")
-    }
+    fun pastikanAdmin(penggunaId: Int) = com.rentech.server.akun.pastikanAdmin(penggunaId)
 
     private fun putuskan(verifikasiId: Int, adminId: Int, hasil: String, alasan: List<String>) {
         pastikanAdmin(adminId)
