@@ -19,6 +19,8 @@ import com.rentech.app.ui.login.DaftarScreen
 import com.rentech.app.ui.login.LupaSandiScreen
 import com.rentech.app.ui.login.MasukScreen
 import com.rentech.app.ui.login.OtpScreen
+import com.rentech.app.ui.notifikasi.NotifikasiScreen
+import com.rentech.app.ui.notifikasi.TujuanNotifikasi
 import com.rentech.app.ui.pemilik.BerandaPemilikScreen
 import com.rentech.app.ui.pemilik.HargaKetersediaanScreen
 import com.rentech.app.ui.pemilik.PermintaanScreen
@@ -97,6 +99,7 @@ object Rute {
     const val PERMINTAAN = "permintaan"
     const val PROFIL = "profil"
     const val BANTUAN = "bantuan"
+    const val NOTIFIKASI = "notifikasi"
 }
 
 @Composable
@@ -316,6 +319,7 @@ fun RentechNavHost() {
             BerandaPemilikScreen(
                 onTambahBarang = { nav.navigate(Rute.TAMBAH_BARANG) },
                 onLihatPermintaan = { nav.bukaTabPemilik(2) },
+                onNotifikasi = { nav.navigate(Rute.NOTIFIKASI) },
                 onPilihTab = { nav.bukaTabPemilik(it) },
             )
         }
@@ -346,6 +350,19 @@ fun RentechNavHost() {
                     nav.navigate(Rute.MASUK) { popUpTo(0) { inclusive = true } }
                 },
                 onPilihTab = { if (peran == Peran.Pemilik) nav.bukaTabPemilik(it) else nav.bukaTabPenyewa(it) },
+            )
+        }
+        composable(Rute.NOTIFIKASI) {
+            NotifikasiScreen(
+                onKembali = { nav.popBackStack() },
+                onBuka = { tujuan ->
+                    when (tujuan) {
+                        TujuanNotifikasi.SewaSaya -> nav.navigate(Rute.SEWA_SAYA)
+                        TujuanNotifikasi.Chat -> nav.navigate(Rute.chat(draft.barangId, sewa = true))
+                        TujuanNotifikasi.Ulasan -> nav.navigate(Rute.ulasan(0))
+                        TujuanNotifikasi.Tidak -> {}
+                    }
+                },
             )
         }
         composable(Rute.BANTUAN) {
