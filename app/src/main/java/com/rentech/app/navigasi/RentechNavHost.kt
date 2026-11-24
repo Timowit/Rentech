@@ -1,5 +1,6 @@
 package com.rentech.app.navigasi
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,7 +8,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.compose.rememberNavController
 import com.rentech.app.ui.login.AturUlangSandiScreen
 import com.rentech.app.ui.login.DaftarScreen
@@ -18,6 +21,8 @@ import com.rentech.app.ui.pemilik.BerandaPemilikScreen
 import com.rentech.app.ui.pemilik.HargaKetersediaanScreen
 import com.rentech.app.ui.pemilik.PermintaanScreen
 import com.rentech.app.ui.jelajah.BerandaScreen
+import com.rentech.app.ui.jelajah.HasilPencarianScreen
+import com.rentech.app.ui.jelajah.PencarianScreen
 import com.rentech.app.ui.pemilik.TambahBarangScreen
 import com.rentech.app.ui.profil.BantuanScreen
 import com.rentech.app.ui.profil.ProfilScreen
@@ -40,6 +45,11 @@ object Rute {
     const val VERIFIKASI_DIPERIKSA = "verifikasi_diperiksa"
     const val VERIFIKASI_DITOLAK = "verifikasi_ditolak"
     const val BERANDA = "beranda"
+    const val PENCARIAN = "pencarian?q={q}"
+    const val HASIL = "hasil?q={q}&filter={filter}"
+
+    fun pencarian(q: String = "") = "pencarian?q=${Uri.encode(q)}"
+    fun hasil(q: String, bukaFilter: Boolean = false) = "hasil?q=${Uri.encode(q)}&filter=$bukaFilter"
     const val BERANDA_PEMILIK = "beranda_pemilik"
     const val TAMBAH_BARANG = "tambah_barang"
     const val HARGA_BARANG = "harga_barang"
@@ -124,13 +134,43 @@ fun RentechNavHost() {
         }
         composable(Rute.BERANDA) {
             BerandaScreen(
-                onCari = { },
-                onFilter = { },
+                onCari = { nav.navigate(Rute.pencarian()) },
+                onFilter = { nav.navigate(Rute.hasil("", bukaFilter = true)) },
                 onCaraKerja = { },
-                onKategori = { },
+                onKategori = { nav.navigate(Rute.hasil(it)) },
                 onBarang = { },
-                onLihatSemua = { },
+                onLihatSemua = { nav.navigate(Rute.hasil("")) },
                 onPilihTab = { nav.bukaTabPenyewa(it) },
+            )
+        }
+        composable(
+            Rute.PENCARIAN,
+            arguments = listOf(navArgument("q") { type = NavType.StringType; defaultValue = "" }),
+        ) { entri ->
+            PencarianScreen(
+                kueriAwal = entri.arguments?.getString("q").orEmpty(),
+                onKembali = { nav.popBackStack() },
+                onCari = { nav.navigate(Rute.hasil(it)) },
+                onKategori = { nav.navigate(Rute.hasil(it)) },
+            )
+        }
+        composable(
+            Rute.HASIL,
+            arguments = listOf(
+                navArgument("q") { type = NavType.StringType; defaultValue = "" },
+                navArgument("filter") { type = NavType.BoolType; defaultValue = false },
+            ),
+        ) { entri ->
+            val kueri = entri.arguments?.getString("q").orEmpty()
+            HasilPencarianScreen(
+                kueri = kueri,
+                bukaFilter = entri.arguments?.getBoolean("filter") ?: false,
+                onKembali = { nav.popBackStack() },
+                onUbahKueri = {
+                    nav.popBackStack()
+                    nav.navigate(Rute.pencarian(kueri)) { launchSingleTop = true }
+                },
+                onBarang = { },
             )
         }
         composable(Rute.BERANDA_PEMILIK) {
@@ -189,6 +229,7 @@ private fun NavHostController.mulaiSebagai(peran: Peran) {
 private fun NavHostController.bukaTabPenyewa(indeks: Int) {
     val tujuan = when (indeks) {
         0 -> Rute.BERANDA
+        1 -> Rute.pencarian()
         3 -> Rute.PROFIL
         else -> return
     }
