@@ -30,6 +30,9 @@ class DraftSewa(barangId: Int = 1) {
     var slot by mutableIntStateOf(0)
     var tunai by mutableStateOf(false)
 
+    /** Penyewa sudah mengonfirmasi barang diterima di layar serah terima. */
+    var diterima by mutableStateOf(false)
+
     val barang: Barang get() = cariBarang(barangId)
     val hari: Long get() = if (mulai != null && selesai != null) ChronoUnit.DAYS.between(mulai, selesai) else 0
     val biayaSewa: Long get() = hari * barang.hargaPerHari

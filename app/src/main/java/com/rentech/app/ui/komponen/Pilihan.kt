@@ -78,7 +78,7 @@ fun Chip(
     )
 }
 
-/** Tombol ikon bulat, misalnya tombol notifikasi atau simpan. */
+/** Tombol ikon bulat (atau kotak membulat), misalnya tombol notifikasi, simpan, atau chat. */
 @Composable
 fun TombolBulat(
     @DrawableRes ikon: Int,
@@ -89,8 +89,9 @@ fun TombolBulat(
     bergaris: Boolean = true,
     latar: Color = Surface,
     warnaIkon: Color = TextPrimary,
+    bentukBulat: Boolean = true,
 ) {
-    val bentuk = CircleShape
+    val bentuk = if (bentukBulat) CircleShape else RoundedCornerShape(18.dp)
     var m = modifier.size(ukuran).clip(bentuk).background(latar)
     if (bergaris) m = m.border(1.dp, Outline, bentuk)
     Box(m.clickable(onClick = onClick), contentAlignment = Alignment.Center) {
