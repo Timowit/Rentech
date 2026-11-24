@@ -18,6 +18,8 @@ import com.rentech.app.ui.pemilik.BerandaPemilikScreen
 import com.rentech.app.ui.pemilik.HargaKetersediaanScreen
 import com.rentech.app.ui.pemilik.PermintaanScreen
 import com.rentech.app.ui.pemilik.TambahBarangScreen
+import com.rentech.app.ui.profil.BantuanScreen
+import com.rentech.app.ui.profil.ProfilScreen
 import com.rentech.app.ui.onboarding.OnboardingScreen
 import com.rentech.app.ui.onboarding.Peran
 import com.rentech.app.ui.onboarding.SplashScreen
@@ -40,6 +42,8 @@ object Rute {
     const val TAMBAH_BARANG = "tambah_barang"
     const val HARGA_BARANG = "harga_barang"
     const val PERMINTAAN = "permintaan"
+    const val PROFIL = "profil"
+    const val BANTUAN = "bantuan"
 }
 
 @Composable
@@ -142,6 +146,27 @@ fun RentechNavHost() {
         composable(Rute.PERMINTAAN) {
             PermintaanScreen(onPilihTab = { nav.bukaTabPemilik(it) })
         }
+        composable(Rute.PROFIL) {
+            ProfilScreen(
+                peran = peran,
+                onGantiPeran = { baru ->
+                    peran = baru
+                    if (baru == Peran.Pemilik) nav.bukaTabPemilik(0)
+                },
+                onBantuan = { nav.navigate(Rute.BANTUAN) },
+                onKeluar = {
+                    nav.navigate(Rute.MASUK) { popUpTo(0) { inclusive = true } }
+                },
+                onPilihTab = { if (peran == Peran.Pemilik) nav.bukaTabPemilik(it) },
+            )
+        }
+        composable(Rute.BANTUAN) {
+            BantuanScreen(
+                onKembali = { nav.popBackStack() },
+                onMulaiPercakapan = { },
+                onPilihTab = { if (it == 3) nav.popBackStack() },
+            )
+        }
     }
 }
 
@@ -150,6 +175,7 @@ private fun NavHostController.bukaTabPemilik(indeks: Int) {
     val tujuan = when (indeks) {
         0 -> Rute.BERANDA_PEMILIK
         2 -> Rute.PERMINTAAN
+        3 -> Rute.PROFIL
         else -> return
     }
     navigate(tujuan) {
