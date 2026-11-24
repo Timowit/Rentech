@@ -20,7 +20,12 @@ import com.rentech.server.akun.rutAkun
 import com.rentech.server.db.buatDataSource
 import com.rentech.server.foto.Penyimpanan
 import com.rentech.server.foto.rutFoto
+import com.rentech.server.bantuan.BantuanLayanan
+import com.rentech.server.bantuan.rutBantuan
 import com.rentech.server.barang.rutBarang
+import com.rentech.server.notifikasi.rutNotifikasi
+import com.rentech.server.sosial.rutPesan
+import com.rentech.server.sosial.rutUlasan
 import com.rentech.server.notifikasi.NotifikasiLayanan
 import com.rentech.server.pesanan.PesananLayanan
 import com.rentech.server.pesanan.rutPesanan
@@ -61,12 +66,17 @@ fun Application.modul(k: Konfigurasi, db: DataSource) {
     val notifikasi = NotifikasiLayanan()
     val verifikasi = VerifikasiLayanan(penyimpanan, notifikasi)
     val pesanan = PesananLayanan(penyimpanan, notifikasi)
+    val bantuan = BantuanLayanan()
     routing {
         rutAkun(k)
         rutFoto(penyimpanan)
         rutVerifikasi(verifikasi)
         rutBarang(penyimpanan)
         rutPesanan(pesanan)
+        rutUlasan()
+        rutPesan()
+        rutNotifikasi()
+        rutBantuan(bantuan)
     }
 }
 
