@@ -1,0 +1,11 @@
+<!-- Huruf r kiri (penyewa) dari simbol logo, digerakkan terpisah di animasi splash. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="88dp"
+    android:height="88dp"
+    android:viewportWidth="88"
+    android:viewportHeight="88">
+    <path
+            android:pathData="M19.25 74.9375V44C19.25 37.4359 21.8576 31.1406 26.4991 26.4991C31.1406 21.8576 37.4359 19.25 44 19.25"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="12.375" />
+</vector>
