@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.rentech.app.R
+import com.rentech.app.ui.theme.OnPrimary
 import com.rentech.app.ui.theme.OnPrimaryContainer
 import com.rentech.app.ui.theme.Outline
 import com.rentech.app.ui.theme.Primary
@@ -123,6 +125,22 @@ fun KotakInfo(
             if (judul != null) Text(judul, style = Teks.IsiTebal, color = warna)
             Text(teks, style = gayaTeks, color = warna)
         }
+    }
+}
+
+/** Kotak centang. */
+@Composable
+fun KotakCentang(tercentang: Boolean, modifier: Modifier = Modifier, ukuran: Dp = 22.dp, radius: Dp = 6.dp) {
+    val bentuk = RoundedCornerShape(radius)
+    Box(
+        modifier
+            .size(ukuran)
+            .clip(bentuk)
+            .background(if (tercentang) Primary else Surface)
+            .border(if (tercentang) 0.dp else 1.5.dp, Outline, bentuk),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (tercentang) Ikon(R.drawable.ikon_check, OnPrimary, ukuran = 16.dp)
     }
 }
 

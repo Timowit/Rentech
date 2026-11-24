@@ -28,6 +28,7 @@ import com.rentech.app.ui.komponen.Ikon
 import com.rentech.app.ui.komponen.IndikatorLangkah
 import com.rentech.app.ui.komponen.KerangkaLayar
 import com.rentech.app.ui.komponen.KolomIsian
+import com.rentech.app.ui.komponen.KotakCentang
 import com.rentech.app.ui.komponen.Tombol
 import com.rentech.app.ui.theme.OnPrimary
 import com.rentech.app.ui.theme.Outline
@@ -97,21 +98,6 @@ fun DaftarScreen(
                 modifier = Modifier.weight(1f),
             )
         }
-    }
-}
-
-@Composable
-private fun KotakCentang(tercentang: Boolean) {
-    val bentuk = RoundedCornerShape(6.dp)
-    Box(
-        Modifier
-            .size(22.dp)
-            .clip(bentuk)
-            .background(if (tercentang) Primary else Surface)
-            .border(if (tercentang) 0.dp else 1.5.dp, Outline, bentuk),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (tercentang) Ikon(R.drawable.ikon_check, OnPrimary, ukuran = 16.dp)
     }
 }
 
