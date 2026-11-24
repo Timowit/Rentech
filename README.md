@@ -50,3 +50,42 @@ Fitur yang sedang direncanakan: chat antara penyewa dan pemilik, berbagi lokasi 
 - Jetpack Compose dan Material 3 untuk antarmuka (rencana)
 - OpenStreetMap untuk peta lokasi barang
 - PostgreSQL di Railway untuk database
+
+## Server
+
+Server API Rentech ada di folder `server/`, dibangun dengan Kotlin, Ktor, dan PostgreSQL, lalu di-host di Railway. Build-nya terpisah dari aplikasi Android.
+
+**Menjalankan tes**
+
+```
+cd server
+./gradlew test
+```
+
+Tes memakai PostgreSQL sementara (embedded), jadi tidak perlu Docker.
+
+**Variabel environment**
+
+| Nama | Isi |
+|---|---|
+| `DATABASE_URL` | URL PostgreSQL. Di Railway: `${{Postgres.DATABASE_URL}}` |
+| `JWT_SECRET` | Kunci acak untuk token masuk |
+| `OTP_DEV` | `true` selama pengembangan, kode OTP-nya `123456` |
+| `FOTO_DIR` | Folder foto. Di Railway: `/data/foto` (volume) |
+| `ADMIN_EMAIL`, `ADMIN_SANDI` | Akun admin yang dibuat seed. Hanya diisi di Railway |
+| `PORT` | Diisi otomatis oleh Railway |
+
+**Data contoh**
+
+Saat server menyala, migrasi dan seed berjalan otomatis. Seed hanya mengisi data contoh kalau tabel barang masih kosong, jadi data yang sudah ada tidak ditimpa. Akun contoh memakai sandi `rentech123`:
+- `penyewa@rentech.test` dan `pemilik@rentech.test`: sudah terverifikasi
+- `diperiksa@rentech.test`: verifikasinya menunggu di antrean admin
+- `ditolak@rentech.test`: verifikasinya ditolak
+
+**Deploy**
+
+```
+cd server
+railway up
+```
+
