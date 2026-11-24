@@ -34,6 +34,8 @@ import com.rentech.app.ui.jelajah.HasilPencarianScreen
 import com.rentech.app.ui.jelajah.PencarianScreen
 import com.rentech.app.ui.pemilik.TambahBarangScreen
 import com.rentech.app.ui.profil.BantuanScreen
+import com.rentech.app.ui.profil.HubungiTimScreen
+import com.rentech.app.ui.profil.TopikBantuan
 import com.rentech.app.ui.sewa.DraftSewa
 import com.rentech.app.ui.sewa.MenungguKonfirmasiScreen
 import com.rentech.app.ui.sewa.MetodePembayaranScreen
@@ -100,6 +102,9 @@ object Rute {
     const val PROFIL = "profil"
     const val BANTUAN = "bantuan"
     const val NOTIFIKASI = "notifikasi"
+    const val HUBUNGI_TIM = "hubungi_tim?verifikasi={verifikasi}"
+
+    fun hubungiTim(verifikasiDitolak: Boolean = false) = "hubungi_tim?verifikasi=$verifikasiDitolak"
 }
 
 @Composable
@@ -174,7 +179,7 @@ fun RentechNavHost() {
                     "Wajah pada swafoto tertutup bayangan",
                 ),
                 onKirimUlang = { nav.navigate(Rute.VERIFIKASI_IDENTITAS) },
-                onHubungiTim = { },
+                onHubungiTim = { nav.navigate(Rute.hubungiTim(verifikasiDitolak = true)) },
             )
         }
         composable(Rute.BERANDA) {
@@ -365,10 +370,22 @@ fun RentechNavHost() {
                 },
             )
         }
+        composable(
+            Rute.HUBUNGI_TIM,
+            arguments = listOf(navArgument("verifikasi") { type = NavType.BoolType; defaultValue = false }),
+        ) { entri ->
+            val verifikasiDitolak = entri.arguments?.getBoolean("verifikasi") ?: false
+            HubungiTimScreen(
+                onKembali = { nav.popBackStack() },
+                onKirimUlangKtp = { nav.navigate(Rute.VERIFIKASI_IDENTITAS) },
+                topikAwal = if (verifikasiDitolak) TopikBantuan.Verifikasi else null,
+                pesanAwal = if (verifikasiDitolak) "Verifikasi identitas saya ditolak, katanya foto KTP buram." else null,
+            )
+        }
         composable(Rute.BANTUAN) {
             BantuanScreen(
                 onKembali = { nav.popBackStack() },
-                onMulaiPercakapan = { },
+                onMulaiPercakapan = { nav.navigate(Rute.hubungiTim()) },
                 onPilihTab = { if (it == 3) nav.popBackStack() else nav.bukaTabPenyewa(it) },
             )
         }
