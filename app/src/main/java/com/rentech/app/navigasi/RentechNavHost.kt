@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
@@ -29,6 +30,13 @@ import com.rentech.app.ui.jelajah.HasilPencarianScreen
 import com.rentech.app.ui.jelajah.PencarianScreen
 import com.rentech.app.ui.pemilik.TambahBarangScreen
 import com.rentech.app.ui.profil.BantuanScreen
+import com.rentech.app.ui.sewa.DraftSewa
+import com.rentech.app.ui.sewa.MenungguKonfirmasiScreen
+import com.rentech.app.ui.sewa.MetodePembayaranScreen
+import com.rentech.app.ui.sewa.PilihTanggalScreen
+import com.rentech.app.ui.sewa.RingkasanSewaScreen
+import com.rentech.app.ui.sewa.SerahTerimaScreen
+import com.rentech.app.ui.sewa.TransferScreen
 import com.rentech.app.ui.profil.ProfilScreen
 import com.rentech.app.ui.onboarding.OnboardingScreen
 import com.rentech.app.ui.onboarding.Peran
@@ -55,6 +63,12 @@ object Rute {
     const val DETAIL = "barang/{id}"
     const val PERLINDUNGAN = "perlindungan"
     const val DAFTAR_TUNGGU = "daftar_tunggu"
+    const val SEWA_TANGGAL = "sewa_tanggal"
+    const val SEWA_SERAH = "sewa_serah_terima"
+    const val SEWA_RINGKASAN = "sewa_ringkasan"
+    const val SEWA_METODE = "sewa_metode"
+    const val SEWA_TRANSFER = "sewa_transfer"
+    const val SEWA_MENUNGGU = "sewa_menunggu"
 
     fun detail(id: Int) = "barang/$id"
     fun pencarian(q: String = "") = "pencarian?q=${Uri.encode(q)}"
@@ -71,6 +85,7 @@ object Rute {
 fun RentechNavHost() {
     val nav = rememberNavController()
     var peran by rememberSaveable { mutableStateOf(Peran.Penyewa) }
+    val draft = remember { DraftSewa() }
 
     NavHost(navController = nav, startDestination = Rute.SPLASH) {
         composable(Rute.SPLASH) {
@@ -183,12 +198,42 @@ fun RentechNavHost() {
             )
         }
         composable(Rute.DETAIL, arguments = listOf(navArgument("id") { type = NavType.IntType })) { entri ->
+            val barang = cariBarang(entri.arguments?.getInt("id") ?: 1)
             DetailBarangScreen(
-                barang = cariBarang(entri.arguments?.getInt("id") ?: 1),
+                barang = barang,
                 onKembali = { nav.popBackStack() },
                 onPemilik = { },
                 onPerlindungan = { nav.navigate(Rute.PERLINDUNGAN) },
-                onSewa = { },
+                onSewa = {
+                    draft.barangId = barang.id
+                    nav.navigate(Rute.SEWA_TANGGAL)
+                },
+            )
+        }
+        composable(Rute.SEWA_TANGGAL) {
+            PilihTanggalScreen(draft, onKembali = { nav.popBackStack() }, onLanjut = { nav.navigate(Rute.SEWA_SERAH) })
+        }
+        composable(Rute.SEWA_SERAH) {
+            SerahTerimaScreen(draft, onKembali = { nav.popBackStack() }, onLanjut = { nav.navigate(Rute.SEWA_RINGKASAN) })
+        }
+        composable(Rute.SEWA_RINGKASAN) {
+            RingkasanSewaScreen(draft, onKembali = { nav.popBackStack() }, onBayar = { nav.navigate(Rute.SEWA_METODE) })
+        }
+        composable(Rute.SEWA_METODE) {
+            MetodePembayaranScreen(
+                draft,
+                onKembali = { nav.popBackStack() },
+                onLanjut = { if (draft.tunai) nav.selesaikanSewa() else nav.navigate(Rute.SEWA_TRANSFER) },
+            )
+        }
+        composable(Rute.SEWA_TRANSFER) {
+            TransferScreen(draft, onKembali = { nav.popBackStack() }, onKirim = { nav.selesaikanSewa() })
+        }
+        composable(Rute.SEWA_MENUNGGU) {
+            MenungguKonfirmasiScreen(
+                draft,
+                onLihatPesanan = { },
+                onBeranda = { nav.bukaTabPenyewa(0) },
             )
         }
         composable(Rute.PERLINDUNGAN) {
@@ -248,6 +293,11 @@ fun RentechNavHost() {
 private fun NavHostController.mulaiSebagai(peran: Peran) {
     val beranda = if (peran == Peran.Pemilik) Rute.BERANDA_PEMILIK else Rute.BERANDA
     navigate(beranda) { popUpTo(0) { inclusive = true } }
+}
+
+/** Pesanan terkirim: halaman alur sewa dibuang supaya tombol kembali tidak membuka pembayaran lagi. */
+private fun NavHostController.selesaikanSewa() {
+    navigate(Rute.SEWA_MENUNGGU) { popUpTo(Rute.BERANDA) }
 }
 
 /** Pindah antar tab di navigasi bawah mode penyewa tanpa menumpuk riwayat. */
