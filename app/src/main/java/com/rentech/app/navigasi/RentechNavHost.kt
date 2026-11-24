@@ -11,6 +11,9 @@ import com.rentech.app.ui.login.MasukScreen
 import com.rentech.app.ui.login.OtpScreen
 import com.rentech.app.ui.onboarding.OnboardingScreen
 import com.rentech.app.ui.onboarding.SplashScreen
+import com.rentech.app.ui.verifikasi.VerifikasiDiperiksaScreen
+import com.rentech.app.ui.verifikasi.VerifikasiDitolakScreen
+import com.rentech.app.ui.verifikasi.VerifikasiIdentitasScreen
 
 object Rute {
     const val SPLASH = "splash"
@@ -20,6 +23,9 @@ object Rute {
     const val OTP = "otp"
     const val LUPA_SANDI = "lupa_sandi"
     const val ATUR_ULANG_SANDI = "atur_ulang_sandi"
+    const val VERIFIKASI_IDENTITAS = "verifikasi_identitas"
+    const val VERIFIKASI_DIPERIKSA = "verifikasi_diperiksa"
+    const val VERIFIKASI_DITOLAK = "verifikasi_ditolak"
 }
 
 @Composable
@@ -54,7 +60,7 @@ fun RentechNavHost() {
             OtpScreen(
                 nomorHp = "0812 •••• 7890",
                 onKembali = { nav.popBackStack() },
-                onVerifikasi = { },
+                onVerifikasi = { nav.navigate(Rute.VERIFIKASI_IDENTITAS) },
                 onGantiNomor = { nav.popBackStack() },
             )
         }
@@ -68,6 +74,29 @@ fun RentechNavHost() {
             AturUlangSandiScreen(
                 onKembali = { nav.popBackStack() },
                 onSimpan = { nav.popBackStack(Rute.MASUK, inclusive = false) },
+            )
+        }
+        composable(Rute.VERIFIKASI_IDENTITAS) {
+            VerifikasiIdentitasScreen(
+                onKembali = { nav.popBackStack() },
+                onKirim = {
+                    nav.navigate(Rute.VERIFIKASI_DIPERIKSA) {
+                        popUpTo(Rute.MASUK) { inclusive = true }
+                    }
+                },
+            )
+        }
+        composable(Rute.VERIFIKASI_DIPERIKSA) {
+            VerifikasiDiperiksaScreen(onJelajahi = { })
+        }
+        composable(Rute.VERIFIKASI_DITOLAK) {
+            VerifikasiDitolakScreen(
+                alasan = listOf(
+                    "Foto KTP buram, nomor NIK tidak terbaca",
+                    "Wajah pada swafoto tertutup bayangan",
+                ),
+                onKirimUlang = { nav.navigate(Rute.VERIFIKASI_IDENTITAS) },
+                onHubungiTim = { },
             )
         }
     }
