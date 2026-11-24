@@ -27,6 +27,7 @@ import com.rentech.app.ui.jelajah.BerandaScreen
 import com.rentech.app.ui.jelajah.DaftarTungguScreen
 import com.rentech.app.ui.jelajah.DetailBarangScreen
 import com.rentech.app.ui.jelajah.PerlindunganScreen
+import com.rentech.app.ui.jelajah.ProfilPemilikScreen
 import com.rentech.app.ui.jelajah.HasilPencarianScreen
 import com.rentech.app.ui.jelajah.PencarianScreen
 import com.rentech.app.ui.pemilik.TambahBarangScreen
@@ -79,6 +80,9 @@ object Rute {
     const val KONFIRMASI_TERIMA = "konfirmasi_terima"
     const val ULASAN = "ulasan/{indeks}"
     const val CHAT = "chat/{id}?sewa={sewa}"
+    const val PROFIL_PEMILIK = "pemilik/{id}"
+
+    fun profilPemilik(id: Int) = "pemilik/$id"
 
     fun chat(id: Int, sewa: Boolean) = "chat/$id?sewa=$sewa"
 
@@ -216,12 +220,21 @@ fun RentechNavHost() {
             DetailBarangScreen(
                 barang = barang,
                 onKembali = { nav.popBackStack() },
-                onPemilik = { },
+                onPemilik = { nav.navigate(Rute.profilPemilik(barang.id)) },
                 onPerlindungan = { nav.navigate(Rute.PERLINDUNGAN) },
                 onSewa = {
                     draft.barangId = barang.id
                     nav.navigate(Rute.SEWA_TANGGAL)
                 },
+            )
+        }
+        composable(Rute.PROFIL_PEMILIK, arguments = listOf(navArgument("id") { type = NavType.IntType })) { entri ->
+            val barang = cariBarang(entri.arguments?.getInt("id") ?: 1)
+            ProfilPemilikScreen(
+                barang = barang,
+                onKembali = { nav.popBackStack() },
+                onBarang = { nav.navigate(Rute.detail(it.id)) },
+                onKirimPesan = { nav.navigate(Rute.chat(barang.id, sewa = false)) },
             )
         }
         composable(Rute.SEWA_TANGGAL) {
