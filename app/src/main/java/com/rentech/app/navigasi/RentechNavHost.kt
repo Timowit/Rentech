@@ -13,6 +13,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.compose.rememberNavController
+import com.rentech.app.ui.chat.ChatPemilikScreen
 import com.rentech.app.ui.login.AturUlangSandiScreen
 import com.rentech.app.ui.login.DaftarScreen
 import com.rentech.app.ui.login.LupaSandiScreen
@@ -36,6 +37,7 @@ import com.rentech.app.ui.sewa.MetodePembayaranScreen
 import com.rentech.app.ui.sewa.PilihTanggalScreen
 import com.rentech.app.ui.sewa.RingkasanSewaScreen
 import com.rentech.app.ui.sewa.SerahTerimaScreen
+import com.rentech.app.ui.sewa.rentangLengkap
 import com.rentech.app.ui.sewa.TransferScreen
 import com.rentech.app.ui.sewasaya.KonfirmasiTerimaScreen
 import com.rentech.app.ui.sewasaya.SewaSayaScreen
@@ -76,6 +78,9 @@ object Rute {
     const val SEWA_SAYA = "sewa_saya"
     const val KONFIRMASI_TERIMA = "konfirmasi_terima"
     const val ULASAN = "ulasan/{indeks}"
+    const val CHAT = "chat/{id}?sewa={sewa}"
+
+    fun chat(id: Int, sewa: Boolean) = "chat/$id?sewa=$sewa"
 
     fun ulasan(indeks: Int) = "ulasan/$indeks"
 
@@ -249,9 +254,25 @@ fun RentechNavHost() {
             SewaSayaScreen(
                 draft,
                 onKonfirmasi = { nav.navigate(Rute.KONFIRMASI_TERIMA) },
-                onChat = { },
+                onChat = { nav.navigate(Rute.chat(draft.barangId, sewa = true)) },
                 onUlas = { nav.navigate(Rute.ulasan(contohRiwayat.indexOf(it))) },
                 onPilihTab = { nav.bukaTabPenyewa(it) },
+            )
+        }
+        composable(
+            Rute.CHAT,
+            arguments = listOf(
+                navArgument("id") { type = NavType.IntType },
+                navArgument("sewa") { type = NavType.BoolType; defaultValue = false },
+            ),
+        ) { entri ->
+            val barang = cariBarang(entri.arguments?.getInt("id") ?: 1)
+            val sewa = entri.arguments?.getBoolean("sewa") ?: false
+            ChatPemilikScreen(
+                barang = barang,
+                keterangan = if (sewa) rentangLengkap(draft) else "${barang.lokasi} · ${barang.jarak}",
+                danaDitahan = if (sewa) !draft.tunai else null,
+                onKembali = { nav.popBackStack() },
             )
         }
         composable(Rute.KONFIRMASI_TERIMA) {
