@@ -29,6 +29,7 @@ import com.rentech.server.sosial.rutUlasan
 import com.rentech.server.notifikasi.NotifikasiLayanan
 import com.rentech.server.pesanan.PesananLayanan
 import com.rentech.server.pesanan.rutPesanan
+import com.rentech.server.seed.jalankanSeed
 import com.rentech.server.verifikasi.VerifikasiLayanan
 import com.rentech.server.verifikasi.rutVerifikasi
 import com.rentech.server.db.migrasi
@@ -85,6 +86,7 @@ fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
     val db = buatDataSource(k)
     migrasi(db)
+    jalankanSeed(db, k, Penyimpanan(k.fotoDir))
     embeddedServer(Netty, port = port, host = "0.0.0.0") {
         modul(k, db)
     }.start(wait = true)

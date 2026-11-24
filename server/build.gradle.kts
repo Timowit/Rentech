@@ -50,3 +50,10 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.register<JavaExec>("seed") {
+    group = "rentech"
+    description = "Migrasi lalu isi data contoh. Memakai DATABASE_URL, JWT_SECRET, ADMIN_EMAIL, ADMIN_SANDI, FOTO_DIR."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.rentech.server.seed.SeedKt")
+}
