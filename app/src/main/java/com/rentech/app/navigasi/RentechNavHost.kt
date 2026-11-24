@@ -17,6 +17,7 @@ import com.rentech.app.ui.login.OtpScreen
 import com.rentech.app.ui.pemilik.BerandaPemilikScreen
 import com.rentech.app.ui.pemilik.HargaKetersediaanScreen
 import com.rentech.app.ui.pemilik.PermintaanScreen
+import com.rentech.app.ui.jelajah.BerandaScreen
 import com.rentech.app.ui.pemilik.TambahBarangScreen
 import com.rentech.app.ui.profil.BantuanScreen
 import com.rentech.app.ui.profil.ProfilScreen
@@ -38,6 +39,7 @@ object Rute {
     const val VERIFIKASI_IDENTITAS = "verifikasi_identitas"
     const val VERIFIKASI_DIPERIKSA = "verifikasi_diperiksa"
     const val VERIFIKASI_DITOLAK = "verifikasi_ditolak"
+    const val BERANDA = "beranda"
     const val BERANDA_PEMILIK = "beranda_pemilik"
     const val TAMBAH_BARANG = "tambah_barang"
     const val HARGA_BARANG = "harga_barang"
@@ -65,11 +67,7 @@ fun RentechNavHost() {
         }
         composable(Rute.MASUK) {
             MasukScreen(
-                onMasuk = {
-                    if (peran == Peran.Pemilik) {
-                        nav.navigate(Rute.BERANDA_PEMILIK) { popUpTo(Rute.MASUK) { inclusive = true } }
-                    }
-                },
+                onMasuk = { nav.mulaiSebagai(peran) },
                 onLupaSandi = { nav.navigate(Rute.LUPA_SANDI) },
                 onDaftar = { nav.navigate(Rute.DAFTAR) },
             )
@@ -112,7 +110,7 @@ fun RentechNavHost() {
             )
         }
         composable(Rute.VERIFIKASI_DIPERIKSA) {
-            VerifikasiDiperiksaScreen(onJelajahi = { })
+            VerifikasiDiperiksaScreen(onJelajahi = { nav.mulaiSebagai(peran) })
         }
         composable(Rute.VERIFIKASI_DITOLAK) {
             VerifikasiDitolakScreen(
@@ -122,6 +120,17 @@ fun RentechNavHost() {
                 ),
                 onKirimUlang = { nav.navigate(Rute.VERIFIKASI_IDENTITAS) },
                 onHubungiTim = { },
+            )
+        }
+        composable(Rute.BERANDA) {
+            BerandaScreen(
+                onCari = { },
+                onFilter = { },
+                onCaraKerja = { },
+                onKategori = { },
+                onBarang = { },
+                onLihatSemua = { },
+                onPilihTab = { nav.bukaTabPenyewa(it) },
             )
         }
         composable(Rute.BERANDA_PEMILIK) {
@@ -151,22 +160,42 @@ fun RentechNavHost() {
                 peran = peran,
                 onGantiPeran = { baru ->
                     peran = baru
-                    if (baru == Peran.Pemilik) nav.bukaTabPemilik(0)
+                    nav.mulaiSebagai(baru)
                 },
                 onBantuan = { nav.navigate(Rute.BANTUAN) },
                 onKeluar = {
                     nav.navigate(Rute.MASUK) { popUpTo(0) { inclusive = true } }
                 },
-                onPilihTab = { if (peran == Peran.Pemilik) nav.bukaTabPemilik(it) },
+                onPilihTab = { if (peran == Peran.Pemilik) nav.bukaTabPemilik(it) else nav.bukaTabPenyewa(it) },
             )
         }
         composable(Rute.BANTUAN) {
             BantuanScreen(
                 onKembali = { nav.popBackStack() },
                 onMulaiPercakapan = { },
-                onPilihTab = { if (it == 3) nav.popBackStack() },
+                onPilihTab = { if (it == 3) nav.popBackStack() else nav.bukaTabPenyewa(it) },
             )
         }
+    }
+}
+
+/** Buka beranda sesuai peran dan buang riwayat sebelumnya (masuk, verifikasi, atau peran lama). */
+private fun NavHostController.mulaiSebagai(peran: Peran) {
+    val beranda = if (peran == Peran.Pemilik) Rute.BERANDA_PEMILIK else Rute.BERANDA
+    navigate(beranda) { popUpTo(0) { inclusive = true } }
+}
+
+/** Pindah antar tab di navigasi bawah mode penyewa tanpa menumpuk riwayat. */
+private fun NavHostController.bukaTabPenyewa(indeks: Int) {
+    val tujuan = when (indeks) {
+        0 -> Rute.BERANDA
+        3 -> Rute.PROFIL
+        else -> return
+    }
+    navigate(tujuan) {
+        popUpTo(Rute.BERANDA) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }
 
