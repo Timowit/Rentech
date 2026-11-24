@@ -20,7 +20,11 @@ import com.rentech.app.ui.login.OtpScreen
 import com.rentech.app.ui.pemilik.BerandaPemilikScreen
 import com.rentech.app.ui.pemilik.HargaKetersediaanScreen
 import com.rentech.app.ui.pemilik.PermintaanScreen
+import com.rentech.app.data.cariBarang
 import com.rentech.app.ui.jelajah.BerandaScreen
+import com.rentech.app.ui.jelajah.DaftarTungguScreen
+import com.rentech.app.ui.jelajah.DetailBarangScreen
+import com.rentech.app.ui.jelajah.PerlindunganScreen
 import com.rentech.app.ui.jelajah.HasilPencarianScreen
 import com.rentech.app.ui.jelajah.PencarianScreen
 import com.rentech.app.ui.pemilik.TambahBarangScreen
@@ -48,6 +52,11 @@ object Rute {
     const val PENCARIAN = "pencarian?q={q}"
     const val HASIL = "hasil?q={q}&filter={filter}"
 
+    const val DETAIL = "barang/{id}"
+    const val PERLINDUNGAN = "perlindungan"
+    const val DAFTAR_TUNGGU = "daftar_tunggu"
+
+    fun detail(id: Int) = "barang/$id"
     fun pencarian(q: String = "") = "pencarian?q=${Uri.encode(q)}"
     fun hasil(q: String, bukaFilter: Boolean = false) = "hasil?q=${Uri.encode(q)}&filter=$bukaFilter"
     const val BERANDA_PEMILIK = "beranda_pemilik"
@@ -136,9 +145,9 @@ fun RentechNavHost() {
             BerandaScreen(
                 onCari = { nav.navigate(Rute.pencarian()) },
                 onFilter = { nav.navigate(Rute.hasil("", bukaFilter = true)) },
-                onCaraKerja = { },
+                onCaraKerja = { nav.navigate(Rute.PERLINDUNGAN) },
                 onKategori = { nav.navigate(Rute.hasil(it)) },
-                onBarang = { },
+                onBarang = { nav.navigate(Rute.detail(it.id)) },
                 onLihatSemua = { nav.navigate(Rute.hasil("")) },
                 onPilihTab = { nav.bukaTabPenyewa(it) },
             )
@@ -170,9 +179,25 @@ fun RentechNavHost() {
                     nav.popBackStack()
                     nav.navigate(Rute.pencarian(kueri)) { launchSingleTop = true }
                 },
-                onBarang = { },
+                onBarang = { nav.navigate(Rute.detail(it.id)) },
             )
         }
+        composable(Rute.DETAIL, arguments = listOf(navArgument("id") { type = NavType.IntType })) { entri ->
+            DetailBarangScreen(
+                barang = cariBarang(entri.arguments?.getInt("id") ?: 1),
+                onKembali = { nav.popBackStack() },
+                onPemilik = { },
+                onPerlindungan = { nav.navigate(Rute.PERLINDUNGAN) },
+                onSewa = { },
+            )
+        }
+        composable(Rute.PERLINDUNGAN) {
+            PerlindunganScreen(
+                onKembali = { nav.popBackStack() },
+                onDaftarTunggu = { nav.navigate(Rute.DAFTAR_TUNGGU) },
+            )
+        }
+        composable(Rute.DAFTAR_TUNGGU) { DaftarTungguScreen() }
         composable(Rute.BERANDA_PEMILIK) {
             BerandaPemilikScreen(
                 onTambahBarang = { nav.navigate(Rute.TAMBAH_BARANG) },
