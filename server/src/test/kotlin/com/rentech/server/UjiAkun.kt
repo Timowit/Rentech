@@ -3,6 +3,10 @@ package com.rentech.server
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -42,4 +46,20 @@ suspend fun HttpClient.postJson(url: String, token: String?, body: Any) = post(u
     token?.let { bearerAuth(it) }
     contentType(ContentType.Application.Json)
     setBody(body)
+}
+
+/** Kirim KTP + swafoto lewat API. */
+suspend fun HttpClient.kirimVerifikasi(token: String?, ktp: ByteArray, swafoto: ByteArray, nik: String = "3171000000000001") =
+    submitFormWithBinaryData(
+        url = "/verifikasi",
+        formData = formData {
+            append("nik", nik)
+            append("ktp", ktp, Headers.build { append(HttpHeaders.ContentDisposition, "filename=ktp.jpg") })
+            append("swafoto", swafoto, Headers.build { append(HttpHeaders.ContentDisposition, "filename=swafoto.jpg") })
+        },
+    ) { token?.let { bearerAuth(it) } }
+
+/** Satu nilai dari DB untuk pemeriksaan tes. */
+fun nilaiDb(sql: String): String? = UjiDb.ds.connection.use { c ->
+    c.createStatement().executeQuery(sql).let { if (it.next()) it.getString(1) else null }
 }
